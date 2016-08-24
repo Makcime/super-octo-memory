@@ -40,20 +40,60 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
-    ofRotateZ(angle);
-    ofSetHexColor(0xffffff);
-	cpy_img.draw(0, 0);
+	if(rot){
+	    ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+	    ofRotateZ(angle);
+	    ofSetHexColor(0xffffff);
+		cpy_img.draw(0, 0);
 
-	if(angle > -5.0 && rot){
+		if(angle > -2.0){
+			find_rotation();
+			angle -=0.1;
+		}
+		else{
+			rot = false;
+			// angle = best_angle;
+		}
+		
+	}
+	else if (!last_grab){
+	    ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+	    ofRotateZ(best_angle);
+	    ofSetHexColor(0xffffff);
+		cpy_img.draw(0, 0);
 		find_rotation();
-		angle -=0.1;
+		last_grab = true;
 	}
 	else{
-		rot = false;
-		angle = best_angle;
+		computeHisto(rot_img);
+		rot_img.draw(0, 0);
+		draw_grid(0 ,ofGetHeight());
 	}
+
 	// drawHisto(-ofGetWidth()/2, 600);
+}
+
+void ofApp::draw_grid(int start_x, int start_y){
+	// draw a line for each elmt in the hestoData
+	int x_pos = start_x, end_y = 0;
+    // ofSetHexColor(0xff0000);
+
+	for (std::vector<int>::iterator i = histDat.begin(); 
+		i != histDat.end(); ++i){
+    	printf("%d\n", (*i));
+    	ofSetHexColor(0xff0000);
+    	if((*i) > 500)
+    		end_y = start_y - ofGetHeight();
+    	else
+    		end_y = start_y;
+
+		ofLine(x_pos-1, start_y, x_pos-1, end_y);
+		ofLine(x_pos, start_y, x_pos, end_y);
+		ofLine(x_pos+1, start_y, x_pos+1, end_y);
+		x_pos++;
+
+	}
+    ofSetHexColor(0xffffff);
 }
 
 void ofApp::computeHisto(ofImage img){
