@@ -66,21 +66,23 @@ void ofApp::draw(){
 	}
 	else{
 		computeHisto(rot_img);
+		computeHistoH(rot_img);
 		rot_img.draw(0, 0);
-		draw_grid(0 ,ofGetHeight());
+		draw_vert_grid(0 ,ofGetHeight());
+		draw_hor_grid(0 ,ofGetHeight());
 	}
 
 	// drawHisto(-ofGetWidth()/2, 600);
 }
 
-void ofApp::draw_grid(int start_x, int start_y){
+void ofApp::draw_vert_grid(int start_x, int start_y){
 	// draw a line for each elmt in the hestoData
 	int x_pos = start_x, end_y = 0;
     // ofSetHexColor(0xff0000);
 
 	for (std::vector<int>::iterator i = histDat.begin(); 
 		i != histDat.end(); ++i){
-    	printf("%d\n", (*i));
+    	// printf("%d\n", (*i));
     	ofSetHexColor(0xff0000);
     	if((*i) > 500)
     		end_y = start_y - ofGetHeight();
@@ -91,6 +93,29 @@ void ofApp::draw_grid(int start_x, int start_y){
 		ofLine(x_pos, start_y, x_pos, end_y);
 		ofLine(x_pos+1, start_y, x_pos+1, end_y);
 		x_pos++;
+
+	}
+    ofSetHexColor(0xffffff);
+}
+
+void ofApp::draw_hor_grid(int start_x, int start_y){
+	// draw a line for each elmt in the hestoData
+	int y_pos = start_x, end_x = 0;
+    // ofSetHexColor(0xff0000);
+
+	for (std::vector<int>::iterator i = histDatH.begin(); 
+		i != histDatH.end(); ++i){
+    	printf("%d\n", (*i));
+    	ofSetHexColor(0xff0000);
+    	if((*i) > 300)
+    		end_x = start_x + ofGetWidth();
+    	else
+    		end_x = start_x;
+
+		ofLine(start_x, y_pos-1, end_x, y_pos-1);
+		ofLine(start_x, y_pos, end_x, y_pos);
+		ofLine(start_x, y_pos+1, end_x, y_pos+1);
+		y_pos++;
 
 	}
     ofSetHexColor(0xffffff);
@@ -122,6 +147,36 @@ void ofApp::computeHisto(ofImage img){
         }
     	// printf("%d  - ", pixs);
         histDat.push_back(pixs);
+        pixs = 0;
+    }
+}
+
+void ofApp::computeHistoH(ofImage img){
+  	ofColor col_hsb;
+    // int histo[25x5] = {0};
+    histDatH.clear();
+
+	unsigned char *data = img.getPixels();
+    int components = 3;
+
+    int pixs = 0;
+
+	for (int y=0; y<img.height; y++) {
+		for (int x=0; x<img.width; x++) {
+	        //Read pixel (x,y) color components
+	        // int index = components * (x + x<img.width * y);
+	        // int red = data[ index ];
+	        // int green = data[ index + 1 ];
+	        // int blue = data[ index + 2 ];
+
+	        ofColor c = img.getColor(x, y);
+	        if (c.getBrightness()  == 0){
+	        	pixs++;
+	        	// getchar();
+	        }
+        }
+    	// printf("%d  - ", pixs);
+        histDatH.push_back(pixs);
         pixs = 0;
     }
 }

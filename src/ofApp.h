@@ -26,11 +26,12 @@ class ofApp : public ofBaseApp{
 		// void gotMessage(ofMessage msg);
 
 		void computeHisto(ofImage img);
+		void computeHistoH(ofImage img);
 		void computeBinarization(ofImage *img, int tresh);
 		void drawHisto(int start_x, int start_y);
 		void find_rotation();
-		void draw_vert_grid
-draw_vert_grid(int start_x, int start_y);
+		void draw_vert_grid(int start_x, int start_y);
+		void draw_hor_grid(int start_x, int start_y);
 
 
 		ofImage src_img, cpy_img, rot_img;
@@ -41,6 +42,7 @@ draw_vert_grid(int start_x, int start_y);
 		bool last_grab = false;
 
         std::vector<int> histDat;
+        std::vector<int> histDatH;
         int best_max = -1;
         float best_angle = 0;
 
