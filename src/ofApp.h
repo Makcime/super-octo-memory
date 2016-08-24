@@ -30,6 +30,7 @@ class ofApp : public ofBaseApp{
 
 		ofImage src_img, cpy_img, rot_img;
 		int Tresh;
+		float angle=0;
 
         std::vector<int> histDat;
 

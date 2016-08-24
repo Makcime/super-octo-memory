@@ -7,8 +7,23 @@ void ofApp::setup(){
     Tresh = 255;
 
     src_img.loadImage("images/Portrait.png");
+
     cpy_img.clone(src_img);
     rot_img.clone(cpy_img);
+    rot_img.setAnchorPercent(.5,.5);
+
+    int w = rot_img.width;
+    int h = rot_img.height;
+
+    float fact = float (ofGetWidth()) / w ;
+    printf("fact = %f\n", fact);
+    fact = 0.7;
+    rot_img.resize(w * fact, h * fact);
+    // rot_img.update();
+
+    int d = ofDist(0,0,rot_img.width,rot_img.height);
+    ofSetWindowShape(rot_img.width,rot_img.height);
+
 	computeBinarization(&cpy_img, Tresh);
 	computeHisto(cpy_img);
 }
@@ -20,8 +35,10 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	cpy_img.draw(0, 0);
-	drawHisto(0, 600);
+    ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+    ofRotateZ(angle);
+	rot_img.draw(0, 0);
+	// drawHisto(0, 600);
 }
 
 void ofApp::computeHisto(ofImage img){
@@ -109,12 +126,20 @@ void ofApp::keyPressed(int key){
 			printf("moins\n");
 			computeHisto(cpy_img);
 			break;
+		case 'r':
+    		angle -= 0.1;
+			break;
+		case ' ':
+			cpy_img.grabScreen(0,0,ofGetWidth(),ofGetHeight());
+			// cpy_img.save("image/ratated.png");
+			ofSaveImage(cpy_img, "image/ratated.png");
+
 		default:
 			break;
 
 	}
 
-	printf("tresh = %d\n", Tresh);
+	printf("angle = %f\n", angle);
 
 }
 
