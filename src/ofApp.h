@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include <unistd.h>
 
 #define RED 0
 #define GREEN 1
@@ -27,12 +28,18 @@ class ofApp : public ofBaseApp{
 		void computeHisto(ofImage img);
 		void computeBinarization(ofImage *img, int tresh);
 		void drawHisto(int start_x, int start_y);
+		void find_rotation();
 
 		ofImage src_img, cpy_img, rot_img;
 		int Tresh;
 		float angle=0;
 
+		bool rot = true;
+
         std::vector<int> histDat;
+        int best_max = -1;
+        float best_angle = 0;
+
 
 		
 };

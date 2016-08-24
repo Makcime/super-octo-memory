@@ -2,34 +2,39 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	ofBackground(0,0,0);
+	ofBackground(255,255,255);
 	ofSetVerticalSync(true);
-    Tresh = 255;
+    Tresh = 160;
 
     src_img.loadImage("images/Portrait.png");
 
     cpy_img.clone(src_img);
     rot_img.clone(cpy_img);
-    rot_img.setAnchorPercent(.5,.5);
+    cpy_img.setAnchorPercent(.5,.5);
 
-    int w = rot_img.width;
-    int h = rot_img.height;
+    int w = cpy_img.width;
+    int h = cpy_img.height;
 
     float fact = float (ofGetWidth()) / w ;
     printf("fact = %f\n", fact);
     fact = 0.7;
-    rot_img.resize(w * fact, h * fact);
+    cpy_img.resize(w * fact, h * fact);
     // rot_img.update();
 
-    int d = ofDist(0,0,rot_img.width,rot_img.height);
-    ofSetWindowShape(rot_img.width,rot_img.height);
+    int d = ofDist(0,0,cpy_img.width,cpy_img.height);
+    ofSetWindowShape(cpy_img.width,cpy_img.height);
 
 	computeBinarization(&cpy_img, Tresh);
-	computeHisto(cpy_img);
+	computeBinarization(&rot_img, Tresh);
+	// computeHisto(cpy_img);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+	// if(rot){
+	// 	angle -= 0.1;
+	// 	// chec maximum
+	// }
 
 }
 
@@ -37,13 +42,24 @@ void ofApp::update(){
 void ofApp::draw(){
     ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
     ofRotateZ(angle);
-	rot_img.draw(0, 0);
-	// drawHisto(0, 600);
+    ofSetHexColor(0xffffff);
+	cpy_img.draw(0, 0);
+
+	if(angle > -5.0 && rot){
+		find_rotation();
+		angle -=0.1;
+	}
+	else{
+		rot = false;
+		angle = best_angle;
+	}
+	// drawHisto(-ofGetWidth()/2, 600);
 }
 
 void ofApp::computeHisto(ofImage img){
   	ofColor col_hsb;
-    int histo[255] = {0};
+    // int histo[25x5] = {0};
+    histDat.clear();
 
 	unsigned char *data = img.getPixels();
     int components = 3;
@@ -110,22 +126,24 @@ void ofApp::computeBinarization(ofImage *img, int tresh){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+	int max = -1;
+
 
 	switch (key){
-		case 'p':
-			Tresh+=10;
-			cpy_img.clone(src_img);
-			computeBinarization(&cpy_img, Tresh);
-			printf("plus\n");
-			computeHisto(cpy_img);
-			break;
-		case 'm':	
-			Tresh-=10;
-			cpy_img.clone(src_img);
-			computeBinarization(&cpy_img, Tresh);
-			printf("moins\n");
-			computeHisto(cpy_img);
-			break;
+		// case 'p':
+		// 	Tresh+=10;
+		// 	cpy_img.clone(src_img);
+		// 	computeBinarization(&cpy_img, Tresh);
+		// 	printf("plus\n");
+		// 	computeHisto(cpy_img);
+		// 	break;
+		// case 'm':	
+		// 	Tresh-=10;
+		// 	cpy_img.clone(src_img);
+		// 	computeBinarization(&cpy_img, Tresh);
+		// 	printf("moins\n");
+		// 	computeHisto(cpy_img);
+		// 	break;
 		case 'r':
     		angle -= 0.1;
 			break;
@@ -133,14 +151,45 @@ void ofApp::keyPressed(int key){
 			cpy_img.grabScreen(0,0,ofGetWidth(),ofGetHeight());
 			// cpy_img.save("image/ratated.png");
 			ofSaveImage(cpy_img, "image/ratated.png");
-
+			break;
+		case 't':
+			break;
 		default:
 			break;
 
 	}
 
-	printf("angle = %f\n", angle);
+	printf("angle = %f ; max = %d\n", angle, max);
 
+}
+
+void ofApp::find_rotation(){
+	int max = -1;
+	usleep(100000);
+	rot_img.grabScreen(0,0,ofGetWidth(),ofGetHeight());
+	computeBinarization(&rot_img, Tresh);
+	for (int i = 0; i < histDat.size(); ++i)
+	{
+		if (histDat[i] > max){
+			// printf("%d - ", histDat[i]);
+			max = histDat[i];
+		}
+	}
+	computeHisto(rot_img);
+	for (int i = 0; i < histDat.size(); ++i)
+	{
+		if (histDat[i] > max){
+			printf("%d - ", histDat[i]);
+			max = histDat[i];
+		}
+	}
+	if (max > best_max){
+		best_max = max;
+		best_angle = angle;
+		printf("\n%f is the new best angle\n", best_angle);
+	}
+	// all_max.push_back(max);
+	// printf(" max = %d\n", max);
 }
 
 /**
@@ -149,7 +198,7 @@ void ofApp::keyPressed(int key){
 void ofApp::drawHisto(int start_x, int start_y){
 	// draw a line for each elmt in the hestoData
 	int x_pos = start_x, end_y;
-    ofSetHexColor(0xffffff);
+    ofSetHexColor(0xff0000);
 
 	for (std::vector<int>::iterator i = histDat.begin(); i != histDat.end(); ++i){
     	end_y = start_y - (*i);
